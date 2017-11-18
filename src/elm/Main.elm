@@ -95,10 +95,10 @@ formatOrders : List OrderItem -> List OrderItem -> List OrderItem
 formatOrders oldOrders newOrders =
     List.map2
         (\a b ->
-            { b | growth = b.price > a.price }
+            { a | growth = a.price > b.price }
         )
-        oldOrders
         newOrders
+        oldOrders
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )

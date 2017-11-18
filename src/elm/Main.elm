@@ -12,7 +12,7 @@ import Html.Attributes exposing (..)
 
 
 type alias OrderItem =
-    { uuid : Maybe String
+    { orderId : String
     , quantity : Float
     , limit : Float
     , opened : String
@@ -27,6 +27,7 @@ type alias Model =
     { orders : List OrderItem
     , error : Maybe String
     , connected : Bool
+    , waitingForData : Bool
     }
 
 
@@ -39,6 +40,7 @@ initModel =
     { orders = []
     , error = Nothing
     , connected = False
+    , waitingForData = True
     }
 
 
@@ -52,7 +54,7 @@ init =
 
 
 type Msg
-    = GetOpenOrders
+    = Tick
     | GotOpenOrders (Result Http.Error (List OrderItem))
 
 
@@ -64,7 +66,7 @@ getApiUrl path =
 openOrderDecoder : JD.Decoder OrderItem
 openOrderDecoder =
     JDP.decode OrderItem
-        |> JDP.required "Uuid" (JD.nullable JD.string)
+        |> JDP.required "OrderUuid" JD.string
         |> JDP.required "Quantity" JD.float
         |> JDP.required "Limit" JD.float
         |> JDP.required "Opened" JD.string
@@ -93,19 +95,41 @@ getOpenOrders =
 
 formatOrders : List OrderItem -> List OrderItem -> List OrderItem
 formatOrders oldOrders newOrders =
-    List.map2
-        (\a b ->
-            { a | growth = a.price > b.price }
+    List.map
+        (\order ->
+            let
+                oldEntry =
+                    oldOrders
+                        |> List.filter
+                            (\old ->
+                                old.orderId == order.orderId
+                            )
+                        |> List.head
+
+                growth =
+                    case oldEntry of
+                        Nothing ->
+                            False
+
+                        Just entry ->
+                            order.price > entry.price
+            in
+                { order | growth = growth }
         )
         newOrders
-        oldOrders
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GetOpenOrders ->
-            ( model, getOpenOrders )
+        Tick ->
+            ( { model
+                | waitingForData = True
+              }
+            , Cmd.batch
+                [ getOpenOrders
+                ]
+            )
 
         GotOpenOrders (Ok orders) ->
             let
@@ -117,6 +141,7 @@ update msg model =
             in
                 ( { model
                     | orders = formattedOrders
+                    , waitingForData = False
                     , connected = True
                   }
                 , Cmd.none
@@ -263,8 +288,8 @@ view model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ if not (List.isEmpty model.orders) then
-            Time.every (4 * Time.second) (always GetOpenOrders)
+        [ if not model.waitingForData then
+            Time.every (10 * Time.second) (always Tick)
           else
             Sub.none
         ]

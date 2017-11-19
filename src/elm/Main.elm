@@ -237,7 +237,12 @@ calculatePotentialEarnings : List OrderItem -> Float
 calculatePotentialEarnings orders =
     orders
         |> List.foldl
-            (\x result -> result + x.limit * x.quantity)
+            (\x result ->
+                if x.orderType == "LIMIT_SELL" then
+                    result + x.limit * x.quantity
+                else
+                    result
+            )
             0
 
 

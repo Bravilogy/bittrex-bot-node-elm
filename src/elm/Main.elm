@@ -148,7 +148,12 @@ update msg model =
                 )
 
         GotOpenOrders (Err _) ->
-            ( { model | error = Just "Could not fetch open orders" }, Cmd.none )
+            ( { model
+                | error = Just "Could not fetch open orders"
+                , waitingForData = False
+              }
+            , Cmd.none
+            )
 
 
 
@@ -208,6 +213,7 @@ orderItemView order =
                     )
                 ]
             , td [] [ text (toString order.limit) ]
+            , td [] [ text (toString (order.quantity * order.limit)) ]
             , td []
                 [ span [ class labelClass ]
                     [ text (toString order.price)
@@ -225,6 +231,14 @@ ordersListView model =
         |> List.sortBy .orderType
         |> List.map orderItemView
         |> tbody []
+
+
+calculatePotentialEarnings : List OrderItem -> Float
+calculatePotentialEarnings orders =
+    orders
+        |> List.foldl
+            (\x result -> result + x.limit * x.quantity)
+            0
 
 
 dashboardView : Model -> Html Msg
@@ -245,10 +259,19 @@ dashboardView model =
                     , th [] [ text "Opened at" ]
                     , th [] [ text "Order type" ]
                     , th [] [ text "Limit Sell / Buy" ]
+                    , th [] [ text "Estimated total" ]
                     , th [] [ text "Last price" ]
                     ]
                 ]
             , ordersListView model
+            , tfoot []
+                [ tr []
+                    [ td [ colspan 5 ]
+                        [ strong [] [ text "Potential earnings" ] ]
+                    , td [ colspan 2 ]
+                        [ text (toString (calculatePotentialEarnings model.orders)) ]
+                    ]
+                ]
             ]
         ]
 

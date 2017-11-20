@@ -194,6 +194,12 @@ orderItemView order =
             else
                 "label label-danger"
 
+        estimatedTotal =
+            if order.orderType == "LIMIT_SELL" then
+                toString (order.quantity * order.limit)
+            else
+                "N/A"
+
         labelIcon =
             if order.growth then
                 "fa fa-arrow-up"
@@ -213,7 +219,7 @@ orderItemView order =
                     )
                 ]
             , td [] [ text (toString order.limit) ]
-            , td [] [ text (toString (order.quantity * order.limit)) ]
+            , td [] [ text estimatedTotal ]
             , td []
                 [ span [ class labelClass ]
                     [ text (toString order.price)

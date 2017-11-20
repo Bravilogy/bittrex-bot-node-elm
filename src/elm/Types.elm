@@ -3,11 +3,6 @@ module Types exposing (..)
 import Http
 
 
-type alias Bargain =
-    { name : String
-    }
-
-
 type alias OrderItem =
     { orderId : String
     , quantity : Float
@@ -24,7 +19,8 @@ type alias Model =
     { orders : List OrderItem
     , error : Maybe String
     , connected : Bool
-    , waitingForData : Bool
+    , pollOpenOrders : Bool
+    , waitingOpenOrders : Bool
     }
 
 
@@ -35,4 +31,4 @@ type alias OrderItemsList =
 type Msg
     = Tick
     | GotOpenOrders (Result Http.Error (List OrderItem))
-    | GotBargains (Result Http.Error (List Bargain))
+    | TogglePollOpenOrders

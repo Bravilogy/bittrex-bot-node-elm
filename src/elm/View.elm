@@ -2,6 +2,7 @@ module View exposing (rootView)
 
 import Types exposing (..)
 import Html exposing (..)
+import Html.Events exposing (..)
 import Html.Attributes exposing (..)
 
 
@@ -97,38 +98,76 @@ calculatePotentialEarnings orders =
             0
 
 
+renderTotalOpenOrders : List OrderItem -> Html Msg
+renderTotalOpenOrders orders =
+    orders
+        |> List.length
+        |> toString
+        |> (++) "Total open orders: "
+        |> text
+        |> (\v ->
+                h3 [] [ v ]
+           )
+
+
+renderOpenOrdersTable : Model -> Html Msg
+renderOpenOrdersTable model =
+    table [ class "table table-striped" ]
+        [ thead []
+            [ tr []
+                [ th [] [ text "Market" ]
+                , th [] [ text "Quantity" ]
+                , th [] [ text "Opened at" ]
+                , th [] [ text "Order type" ]
+                , th [] [ text "Limit Sell / Buy" ]
+                , th [] [ text "Estimated total" ]
+                , th [] [ text "Last price" ]
+                ]
+            ]
+        , ordersListView model
+        , tfoot []
+            [ tr []
+                [ td [ colspan 5 ]
+                    [ strong [] [ text "Potential earnings" ] ]
+                , td [ colspan 2 ]
+                    [ text (toString (calculatePotentialEarnings model.orders)) ]
+                ]
+            ]
+        ]
+
+
+renderToolbar : Model -> Html Msg
+renderToolbar model =
+    let
+        openOrdersClass =
+            if model.pollOpenOrders then
+                "btn btn-danger"
+            else
+                "btn btn-success"
+
+        openOrdersLabel =
+            if model.pollOpenOrders then
+                "Stop polling open orders"
+            else
+                "Start polling open orders"
+    in
+        ul [ class "list-inline" ]
+            [ li [ class "list-inline-item" ]
+                [ button
+                    [ class openOrdersClass
+                    , onClick TogglePollOpenOrders
+                    ]
+                    [ text openOrdersLabel ]
+                ]
+            ]
+
+
 dashboardView : Model -> Html Msg
 dashboardView model =
     div []
-        [ h3 []
-            [ model.orders
-                |> List.length
-                |> toString
-                |> (++) "Total open orders: "
-                |> text
-            ]
-        , table [ class "table table-striped" ]
-            [ thead []
-                [ tr []
-                    [ th [] [ text "Market" ]
-                    , th [] [ text "Quantity" ]
-                    , th [] [ text "Opened at" ]
-                    , th [] [ text "Order type" ]
-                    , th [] [ text "Limit Sell / Buy" ]
-                    , th [] [ text "Estimated total" ]
-                    , th [] [ text "Last price" ]
-                    ]
-                ]
-            , ordersListView model
-            , tfoot []
-                [ tr []
-                    [ td [ colspan 5 ]
-                        [ strong [] [ text "Potential earnings" ] ]
-                    , td [ colspan 2 ]
-                        [ text (toString (calculatePotentialEarnings model.orders)) ]
-                    ]
-                ]
-            ]
+        [ renderTotalOpenOrders model.orders
+        , renderToolbar model
+        , renderOpenOrdersTable model
         ]
 
 

@@ -39,26 +39,3 @@ getOpenOrders =
             Http.get url openOrdersListDecoder
     in
         Http.send GotOpenOrders request
-
-
-bargainDecoder : JD.Decoder Bargain
-bargainDecoder =
-    JDP.decode Bargain
-        |> JDP.required "name" JD.string
-
-
-bargainsDecoder : JD.Decoder (List Bargain)
-bargainsDecoder =
-    JD.field "data" (JD.list bargainDecoder)
-
-
-checkBargains : Cmd Msg
-checkBargains =
-    let
-        url =
-            getApiUrl "/check-bargains"
-
-        request =
-            Http.get url bargainsDecoder
-    in
-        Http.send GotBargains request

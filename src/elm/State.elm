@@ -10,7 +10,8 @@ initModel =
     { orders = []
     , error = Nothing
     , connected = False
-    , waitingForData = True
+    , pollOpenOrders = True
+    , waitingOpenOrders = True
     }
 
 
@@ -50,7 +51,7 @@ update msg model =
     case msg of
         Tick ->
             ( { model
-                | waitingForData = True
+                | waitingOpenOrders = True
               }
             , Cmd.batch
                 [ getOpenOrders
@@ -67,7 +68,7 @@ update msg model =
             in
                 ( { model
                     | orders = formattedOrders
-                    , waitingForData = False
+                    , waitingOpenOrders = False
                     , connected = True
                   }
                 , Cmd.none
@@ -76,17 +77,32 @@ update msg model =
         GotOpenOrders (Err _) ->
             ( { model
                 | error = Just "Could not fetch open orders"
-                , waitingForData = False
+                , waitingOpenOrders = False
+              }
+            , Cmd.none
+            )
+
+        TogglePollOpenOrders ->
+            ( { model
+                | pollOpenOrders = not model.pollOpenOrders
               }
             , Cmd.none
             )
 
 
+pollOpenOrders : Model -> Sub Msg
+pollOpenOrders model =
+    if not model.waitingOpenOrders then
+        Time.every (10 * Time.second) (always Tick)
+    else
+        Sub.none
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
-        [ if not model.waitingForData then
-            Time.every (10 * Time.second) (always Tick)
+        [ if model.pollOpenOrders then
+            pollOpenOrders model
           else
             Sub.none
         ]

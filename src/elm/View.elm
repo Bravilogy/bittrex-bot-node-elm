@@ -31,6 +31,21 @@ loadingView =
         [ text "Connecting to bittrex..." ]
 
 
+calculateDone : OrderItem -> Html Msg
+calculateDone order =
+    let
+        percent =
+            if order.orderType == "LIMIT_SELL" then
+                order.price / order.limit * 100
+            else
+                order.limit / order.price * 100
+    in
+        percent
+            |> round
+            |> toString
+            |> (\v -> text (v ++ "%"))
+
+
 orderItemView : OrderItem -> Html Msg
 orderItemView order =
     let
@@ -66,6 +81,7 @@ orderItemView order =
                 ]
             , td [] [ text (toString order.limit) ]
             , td [] [ text estimatedTotal ]
+            , td [] [ calculateDone order ]
             , td []
                 [ span [ class labelClass ]
                     [ text (toString order.price)
@@ -121,6 +137,7 @@ renderOpenOrdersTable model =
                 , th [] [ text "Order type" ]
                 , th [] [ text "Limit Sell / Buy" ]
                 , th [] [ text "Estimated total" ]
+                , th [] [ text "% complete" ]
                 , th [] [ text "Last price" ]
                 ]
             ]

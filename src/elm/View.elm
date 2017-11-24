@@ -133,7 +133,7 @@ renderOpenOrdersTable model =
             [ tr []
                 [ th [] [ text "Market" ]
                 , th [] [ text "Quantity" ]
-                , th [] [ text "Opened at" ]
+                , th [] [ text "Opened" ]
                 , th [] [ text "Order type" ]
                 , th [] [ text "Limit Sell / Buy" ]
                 , th [] [ text "Estimated total" ]

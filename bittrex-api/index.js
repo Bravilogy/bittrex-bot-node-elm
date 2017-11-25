@@ -8,7 +8,6 @@ const {
   path,
   both,
   pipe,
-  props,
   propEq,
   filter,
   concat,

@@ -17,7 +17,9 @@ It uses `dotenv` package and the `.env` file needs to be in the following format
 API_KEY=<your-api-key-here>
 API_SECRET=<your-api-secret-here>
 ```
-#### 4. Start node + webpack
+#### 4. Install packages
+`yarn`
+#### 5. Start node + webpack
 `yarn start`
 
 [localhost:3000](http://localhost:3000)

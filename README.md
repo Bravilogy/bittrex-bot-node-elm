@@ -20,4 +20,4 @@ API_SECRET=<your-api-secret-here>
 #### 4. Start node + webpack
 `yarn start`
 
-[http://localhost:3000](localhost:3000)
+[localhost:3000](http://localhost:3000)

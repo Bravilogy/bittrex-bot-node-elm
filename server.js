@@ -1,17 +1,21 @@
-const env           = require('dotenv').config();
-const bodyParser    = require('body-parser');
-const express       = require('express');
-const app           = express();
+const env = require('dotenv').config();
+const bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
 
 const {
   getOpenOrdersWithCurrentPrices,
+  getAccountBalancesWithCurrentPrices,
 } = require('./bittrex-api');
 
 const PORT = 8080;
 const router = express.Router();
 
 /* A few headers for restfulness */
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true,
+}));
+
 app.use(bodyParser.json());
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
@@ -21,13 +25,18 @@ app.use((req, res, next) => {
   next();
 });
 
-router.get('/', (req, res) => {
-  res.json({ message: 'Hello world' });
-});
-
 router.get('/open-orders', (req, res) => {
   getOpenOrdersWithCurrentPrices
-    .fork(console.error, data => res.send({ data }));
+    .fork(console.error, data => res.send({
+      data,
+    }));
+});
+
+router.get('/account-balances', (req, res) => {
+  getAccountBalancesWithCurrentPrices
+    .fork(console.error, data => res.send({
+      data,
+    }));
 });
 
 app.use('/api', router);

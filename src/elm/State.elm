@@ -2,7 +2,7 @@ module State exposing (init, update, subscriptions)
 
 import Time
 import Types exposing (..)
-import Rest exposing (getOpenOrders)
+import Rest exposing (getOpenOrders, getAccountBalances)
 
 
 initModel : Model
@@ -10,6 +10,8 @@ initModel =
     { orders = []
     , error = Nothing
     , connected = False
+    , balances = []
+    , loadingBalances = False
     , pollOpenOrders = True
     , waitingOpenOrders = True
     }
@@ -78,6 +80,25 @@ update msg model =
             ( { model
                 | error = Just "Could not fetch open orders"
                 , waitingOpenOrders = False
+              }
+            , Cmd.none
+            )
+
+        GetAccountBalances ->
+            ( { model | loadingBalances = True }, getAccountBalances )
+
+        GotAccountBalances (Ok balances) ->
+            ( { model
+                | balances = balances
+                , loadingBalances = False
+              }
+            , Cmd.none
+            )
+
+        GotAccountBalances (Err _) ->
+            ( { model
+                | error = Just "Could not fetch account balances"
+                , loadingBalances = False
               }
             , Cmd.none
             )

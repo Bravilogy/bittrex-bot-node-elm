@@ -15,10 +15,21 @@ type alias OrderItem =
     }
 
 
+type alias AccountBalance =
+    { currency : String
+    , quantity : Float
+    , totalPrice : Float
+    , pricePerUnit : Float
+    , currentPrice : Float
+    }
+
+
 type alias Model =
     { orders : List OrderItem
+    , balances : List AccountBalance
     , error : Maybe String
     , connected : Bool
+    , loadingBalances : Bool
     , pollOpenOrders : Bool
     , waitingOpenOrders : Bool
     }
@@ -31,4 +42,6 @@ type alias OrderItemsList =
 type Msg
     = Tick
     | GotOpenOrders (Result Http.Error (List OrderItem))
+    | GetAccountBalances
+    | GotAccountBalances (Result Http.Error (List AccountBalance))
     | TogglePollOpenOrders

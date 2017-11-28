@@ -77,10 +77,15 @@ renderBalancesTable model =
 
 accountBalancesSection : Model -> Html Msg
 accountBalancesSection model =
-    if List.length model.balances > 0 then
+    if List.isEmpty model.balances then
+        section []
+            [ emptyView
+                [ "To view your #hodls, click the button above."
+                , "If you have anything in your account, they will magically appear here."
+                ]
+            ]
+    else
         section []
             [ renderListTotal model.balances "Total coins in hodl"
             , renderBalancesTable model
             ]
-    else
-        text ""

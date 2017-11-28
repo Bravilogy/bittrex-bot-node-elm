@@ -76,23 +76,12 @@ dashboardView model =
         ]
 
 
-emptyView : Html Msg
-emptyView =
-    div [ class "text-center small" ]
-        [ text "Open orders list is empty."
-        , br [] []
-        , text "Once you add some on Bittrex, it will automatically appear here."
-        ]
-
-
 rootView : Model -> Html Msg
 rootView model =
     let
         currentView =
             if not model.connected then
                 loadingView
-            else if List.isEmpty model.orders then
-                emptyView
             else
                 dashboardView model
     in

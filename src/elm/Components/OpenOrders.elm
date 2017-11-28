@@ -118,7 +118,15 @@ renderOpenOrdersTable model =
 
 openOrdersSection : Model -> Html Msg
 openOrdersSection model =
-    section []
-        [ renderListTotal model.orders "Total open orders"
-        , renderOpenOrdersTable model
-        ]
+    if List.isEmpty model.orders then
+        section []
+            [ emptyView
+                [ "Open orders list is empty."
+                , "Once you add some on Bittrex, it will automatically appear here."
+                ]
+            ]
+    else
+        section []
+            [ renderListTotal model.orders "Total open orders"
+            , renderOpenOrdersTable model
+            ]
